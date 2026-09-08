@@ -1,16 +1,15 @@
-# React + Vite
+# frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + Vite + React Router UI, role-based between the Employee (check-in/out, history) and
+HRD Admin (dashboard, monitoring, employees, departments) views. Talks to both backend
+services directly via two axios instances (`src/api/attendanceApi.js`,
+`src/api/monitoringApi.js`). See the [repo root README](../README.md) for how to run the whole
+app, and [AGENTS.md](../AGENTS.md) for the full spec this implements.
 
-Currently, two official plugins are available:
+## Scripts
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `npm run dev` — start the Vite dev server (default `http://localhost:5173`)
+- `npm run build` — production build to `dist/`
+- `npm run preview` — preview the production build locally
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Copy `.env.example` to `.env` and adjust the API URLs if the backend services run elsewhere.

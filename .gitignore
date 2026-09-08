@@ -1,0 +1,6 @@
+# OS/editor cruft not already covered by each project's own .gitignore
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
