@@ -12,7 +12,10 @@ jest.mock('fs');
 jest.mock('exifr');
 
 const mockPhoto = () =>
-  ({ buffer: Buffer.from(''), originalname: 'photo.jpg' }) as Express.Multer.File;
+  ({
+    buffer: Buffer.from(''),
+    originalname: 'photo.jpg',
+  }) as Express.Multer.File;
 
 describe('AttendancesService', () => {
   let service: AttendancesService;
@@ -39,7 +42,9 @@ describe('AttendancesService', () => {
         {
           provide: EmployeeClientService,
           useValue: {
-            getActiveEmployee: jest.fn().mockResolvedValue({ id: 1, status: 'ACTIVE' }),
+            getActiveEmployee: jest
+              .fn()
+              .mockResolvedValue({ id: 1, status: 'ACTIVE' }),
           },
         },
         {
@@ -50,7 +55,9 @@ describe('AttendancesService', () => {
     }).compile();
 
     service = module.get(AttendancesService);
-    attendanceRepository = module.get(getRepositoryToken(Attendance, 'attendance'));
+    attendanceRepository = module.get(
+      getRepositoryToken(Attendance, 'attendance'),
+    );
     employeeClientService = module.get(EmployeeClientService);
   });
 
@@ -65,7 +72,9 @@ describe('AttendancesService', () => {
 
     it('validates the employee is active via monitoring-service first', async () => {
       attendanceRepository.findOne.mockResolvedValue(null);
-      (exifr.parse as jest.Mock).mockResolvedValue({ DateTimeOriginal: new Date() });
+      (exifr.parse as jest.Mock).mockResolvedValue({
+        DateTimeOriginal: new Date(),
+      });
 
       await service.checkIn(7, mockPhoto());
 
@@ -74,7 +83,9 @@ describe('AttendancesService', () => {
 
     it('accepts a photo whose EXIF time is within tolerance', async () => {
       attendanceRepository.findOne.mockResolvedValue(null);
-      (exifr.parse as jest.Mock).mockResolvedValue({ DateTimeOriginal: new Date() });
+      (exifr.parse as jest.Mock).mockResolvedValue({
+        DateTimeOriginal: new Date(),
+      });
 
       const result = await service.checkIn(1, mockPhoto());
 
@@ -85,7 +96,9 @@ describe('AttendancesService', () => {
     it('rejects a photo whose EXIF time is outside the tolerance window', async () => {
       attendanceRepository.findOne.mockResolvedValue(null);
       const staleTime = new Date(Date.now() - 60 * 60 * 1000); // 1 hour ago, default tolerance is 10 min
-      (exifr.parse as jest.Mock).mockResolvedValue({ DateTimeOriginal: staleTime });
+      (exifr.parse as jest.Mock).mockResolvedValue({
+        DateTimeOriginal: staleTime,
+      });
 
       await expect(service.checkIn(1, mockPhoto())).rejects.toThrow(
         /tidak sesuai dengan waktu server/,
@@ -103,7 +116,9 @@ describe('AttendancesService', () => {
 
     it('stamps createdBy/updatedBy with the checking-in employee', async () => {
       attendanceRepository.findOne.mockResolvedValue(null);
-      (exifr.parse as jest.Mock).mockResolvedValue({ DateTimeOriginal: new Date() });
+      (exifr.parse as jest.Mock).mockResolvedValue({
+        DateTimeOriginal: new Date(),
+      });
 
       const result = await service.checkIn(9, mockPhoto());
 
