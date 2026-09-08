@@ -1,0 +1,74 @@
+.employee-dashboard {
+  padding: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.attendance-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.action-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.action-card button {
+  padding: 0.6rem;
+  background: #1f2937;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.action-card button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.photo-preview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+.feedback {
+  padding: 0.6rem;
+  border-radius: 4px;
+}
+
+.feedback.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.feedback.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th,
+td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  font-size: 0.9rem;
+}
