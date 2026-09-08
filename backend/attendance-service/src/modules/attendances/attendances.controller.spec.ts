@@ -13,6 +13,7 @@ describe('AttendancesController', () => {
     role: 'EMPLOYEE',
   };
   const photo = { originalname: 'photo.jpg' } as Express.Multer.File;
+  const location = { lat: -6.2, lng: 106.8 };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,14 +34,14 @@ describe('AttendancesController', () => {
     attendancesService = module.get(AttendancesService);
   });
 
-  it('checkIn delegates to the service with the current employee id and the uploaded photo', async () => {
-    await controller.checkIn(user, photo);
-    expect(attendancesService.checkIn).toHaveBeenCalledWith(7, photo);
+  it('checkIn delegates to the service with the current employee id, photo, and location', async () => {
+    await controller.checkIn(user, photo, location);
+    expect(attendancesService.checkIn).toHaveBeenCalledWith(7, photo, location);
   });
 
-  it('checkOut delegates to the service with the current employee id and the uploaded photo', async () => {
-    await controller.checkOut(user, photo);
-    expect(attendancesService.checkOut).toHaveBeenCalledWith(7, photo);
+  it('checkOut delegates to the service with the current employee id, photo, and location', async () => {
+    await controller.checkOut(user, photo, location);
+    expect(attendancesService.checkOut).toHaveBeenCalledWith(7, photo, location);
   });
 
   it('getHistory delegates to the service with the current employee id and the date filter', async () => {

@@ -22,11 +22,21 @@
 }
 
 .page-content .summary-card {
+  display: block;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1rem;
   text-align: center;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.page-content .summary-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+  box-shadow: 0 8px 18px rgba(210, 31, 31, 0.14);
 }
 
 .page-content .summary-card .value {
@@ -43,6 +53,19 @@
   margin-bottom: 1rem;
 }
 
+.page-content .table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.page-content .table-toolbar form.inline-form {
+  margin-bottom: 0;
+}
+
 .page-content form.inline-form label {
   display: flex;
   flex-direction: column;
@@ -52,31 +75,76 @@
 
 .page-content input,
 .page-content select {
-  padding: 0.4rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-content input:focus,
+.page-content select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(210, 31, 31, 0.12);
 }
 
 .page-content button {
-  padding: 0.5rem 0.9rem;
-  background: var(--color-primary);
+  padding: 0.55rem 1.1rem;
+  background: var(--color-gradient);
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 0.88rem;
+  box-shadow: 0 4px 10px rgba(210, 31, 31, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .page-content button:hover:not(:disabled) {
-  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(210, 31, 31, 0.24);
+}
+
+.page-content button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(210, 31, 31, 0.2);
 }
 
 .page-content button.secondary {
-  background: #6b7280;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+}
+
+.page-content button.secondary:hover:not(:disabled) {
+  background: var(--color-bg);
+  border-color: var(--color-text-muted);
+  transform: none;
+  box-shadow: none;
 }
 
 .page-content button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Looks not-ready-yet without actually disabling the button — clicking it
+   while required fields are empty still triggers native validation tooltips. */
+.page-content button.pending {
+  background: #d1d5db;
+  color: #6b7280;
+  box-shadow: none;
+}
+
+.page-content button.pending:hover {
+  background: #d1d5db;
+  transform: none;
+  box-shadow: none;
 }
 
 .page-content .detail-panel {

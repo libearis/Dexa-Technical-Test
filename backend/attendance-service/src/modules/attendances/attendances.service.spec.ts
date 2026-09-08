@@ -125,6 +125,33 @@ describe('AttendancesService', () => {
       expect(result.createdBy).toBe(9);
       expect(result.updatedBy).toBe(9);
     });
+
+    it('stores the reported latitude/longitude when location is provided', async () => {
+      attendanceRepository.findOne.mockResolvedValue(null);
+      (exifr.parse as jest.Mock).mockResolvedValue({
+        DateTimeOriginal: new Date(),
+      });
+
+      const result = await service.checkIn(1, mockPhoto(), {
+        lat: -6.2088,
+        lng: 106.8456,
+      });
+
+      expect(result.checkInLat).toBe('-6.2088');
+      expect(result.checkInLng).toBe('106.8456');
+    });
+
+    it('leaves latitude/longitude null when location is omitted', async () => {
+      attendanceRepository.findOne.mockResolvedValue(null);
+      (exifr.parse as jest.Mock).mockResolvedValue({
+        DateTimeOriginal: new Date(),
+      });
+
+      const result = await service.checkIn(1, mockPhoto());
+
+      expect(result.checkInLat).toBeNull();
+      expect(result.checkInLng).toBeNull();
+    });
   });
 
   describe('checkOut', () => {
@@ -173,6 +200,25 @@ describe('AttendancesService', () => {
 
       expect(result.status).toBe('PRESENT');
       expect(result.updatedBy).toBe(3);
+    });
+
+    it('stores the reported latitude/longitude when location is provided', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-01T18:00:00'));
+      attendanceRepository.findOne.mockResolvedValue({
+        checkOutTime: null,
+        notes: null,
+      } as unknown as Attendance);
+      (exifr.parse as jest.Mock).mockResolvedValue({
+        DateTimeOriginal: new Date('2026-01-01T18:00:00'),
+      });
+
+      const result = await service.checkOut(3, mockPhoto(), {
+        lat: -6.2088,
+        lng: 106.8456,
+      });
+
+      expect(result.checkOutLat).toBe('-6.2088');
+      expect(result.checkOutLng).toBe('106.8456');
     });
   });
 });

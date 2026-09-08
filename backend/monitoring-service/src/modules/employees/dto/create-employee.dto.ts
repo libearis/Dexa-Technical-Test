@@ -4,7 +4,6 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsOptional,
   IsString,
 } from 'class-validator';
 import { EmployeeRole } from '../entities/employee.entity';
@@ -29,9 +28,8 @@ export class CreateEmployeeDto {
   @IsEnum(['EMPLOYEE', 'HRD_ADMIN'])
   role: EmployeeRole;
 
-  @IsOptional()
   @IsInt()
-  departmentId?: number;
+  departmentId: number;
 
   @IsString()
   @IsNotEmpty()

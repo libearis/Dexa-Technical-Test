@@ -9,9 +9,15 @@
   --color-gradient: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
   --color-bg: #f3f4f6;
   --color-surface: #ffffff;
+  --color-surface-soft: #fdf1ec;
   --color-border: #e5e7eb;
+  --color-border-soft: #f4dccd;
   --color-text: #111827;
   --color-text-muted: #6b7280;
+
+  /* Header: a light tint of the brand gradient, not plain white */
+  --color-header-bg: linear-gradient(135deg, #f5cece 0%, #fcdec5 100%);
+  --color-header-border: #fcd3b1;
 }
 
 * {
@@ -25,7 +31,9 @@ body {
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   margin: 0 0 1rem;
 }
 

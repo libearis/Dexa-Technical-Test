@@ -36,6 +36,26 @@ export class Attendance {
   })
   checkInPhotoExifTime: Date | null;
 
+  // Browser-reported GPS coordinates at the moment of check-in/out — an audit
+  // trail, not a geofence. DECIMAL keeps ~1cm precision without float drift.
+  @Column({
+    name: 'check_in_lat',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
+  checkInLat: string | null;
+
+  @Column({
+    name: 'check_in_lng',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
+  checkInLng: string | null;
+
   @Column({ name: 'check_out_time', type: 'datetime', nullable: true })
   checkOutTime: Date | null;
 
@@ -48,6 +68,24 @@ export class Attendance {
     nullable: true,
   })
   checkOutPhotoExifTime: Date | null;
+
+  @Column({
+    name: 'check_out_lat',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
+  checkOutLat: string | null;
+
+  @Column({
+    name: 'check_out_lng',
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+  })
+  checkOutLng: string | null;
 
   @Column({
     type: 'enum',

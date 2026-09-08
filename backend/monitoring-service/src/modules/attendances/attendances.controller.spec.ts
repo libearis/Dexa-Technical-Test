@@ -32,9 +32,14 @@ describe('AttendancesController', () => {
     expect(attendancesService.findAll).toHaveBeenCalledWith(filter);
   });
 
-  it('getDashboardSummary delegates to the service', async () => {
+  it('getDashboardSummary delegates to the service with the requested date', async () => {
+    await controller.getDashboardSummary('2026-03-05');
+    expect(attendancesService.getDashboardSummary).toHaveBeenCalledWith('2026-03-05');
+  });
+
+  it('getDashboardSummary defaults to no date when omitted', async () => {
     await controller.getDashboardSummary();
-    expect(attendancesService.getDashboardSummary).toHaveBeenCalled();
+    expect(attendancesService.getDashboardSummary).toHaveBeenCalledWith(undefined);
   });
 
   it('findOne delegates to the service', async () => {

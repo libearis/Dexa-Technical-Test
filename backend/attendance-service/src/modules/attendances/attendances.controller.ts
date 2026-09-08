@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Post,
@@ -16,6 +17,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { AttendancesService } from './attendances.service';
+import { CheckLocationDto } from './dto/check-location.dto';
 
 @Controller('attendances')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -28,8 +30,9 @@ export class AttendancesController {
   checkIn(
     @CurrentUser() user: CurrentUserPayload,
     @UploadedFile() photo: Express.Multer.File,
+    @Body() location: CheckLocationDto,
   ) {
-    return this.attendancesService.checkIn(user.employeeId, photo);
+    return this.attendancesService.checkIn(user.employeeId, photo, location);
   }
 
   @Post('check-out')
@@ -38,8 +41,9 @@ export class AttendancesController {
   checkOut(
     @CurrentUser() user: CurrentUserPayload,
     @UploadedFile() photo: Express.Multer.File,
+    @Body() location: CheckLocationDto,
   ) {
-    return this.attendancesService.checkOut(user.employeeId, photo);
+    return this.attendancesService.checkOut(user.employeeId, photo, location);
   }
 
   @Get('history')

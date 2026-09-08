@@ -25,8 +25,8 @@ export class AttendancesController {
   }
 
   @Get('dashboard/summary')
-  getDashboardSummary() {
-    return this.attendancesService.getDashboardSummary();
+  getDashboardSummary(@Query('date') date?: string) {
+    return this.attendancesService.getDashboardSummary(date);
   }
 
   @Get(':id')

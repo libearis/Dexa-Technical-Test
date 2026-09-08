@@ -18,17 +18,23 @@ export class AttendancesService {
   async findAll(filter: AttendanceFilterDto) {
     const employeeIds = await this.resolveEmployeeIdsInScope(filter);
 
-    const where: Record<string, unknown> = {};
-    if (filter.from && filter.to)
-      where.attendanceDate = Between(filter.from, filter.to);
-    if (filter.status) where.status = filter.status;
-    if (employeeIds) where.employeeId = In(employeeIds);
+    // "Not checked in" is synthesized (there's no row in `attendances` for
+    // it), which only makes sense against one specific day — not a range.
+    const isSingleDate =
+      !!filter.from && !!filter.to && filter.from === filter.to;
+    const includeRealRows = filter.status !== 'NOT_CHECKED_IN';
+    const includeNotCheckedIn =
+      isSingleDate &&
+      (!filter.status || filter.status === 'NOT_CHECKED_IN');
 
-    const attendances = await this.attendanceRepository.find({
-      where,
-      order: { attendanceDate: 'DESC' },
-    });
-    return this.attachEmployeeInfo(attendances);
+    const realRows = includeRealRows
+      ? await this.findRealRows(filter, employeeIds)
+      : [];
+    const notCheckedInRows = includeNotCheckedIn
+      ? await this.findNotCheckedInRows(filter.from as string, employeeIds)
+      : [];
+
+    return [...realRows, ...notCheckedInRows];
   }
 
   async findOne(id: number) {
@@ -47,30 +53,78 @@ export class AttendancesService {
     };
   }
 
-  async getDashboardSummary() {
-    const today = new Date().toISOString().slice(0, 10);
-    const [activeEmployeeCount, todayAttendances] = await Promise.all([
+  async getDashboardSummary(date?: string) {
+    const targetDate = date ?? new Date().toISOString().slice(0, 10);
+    const [activeEmployeeCount, dayAttendances] = await Promise.all([
       this.employeeRepository.count({ where: { status: 'ACTIVE' } }),
-      this.attendanceRepository.find({ where: { attendanceDate: today } }),
+      this.attendanceRepository.find({ where: { attendanceDate: targetDate } }),
     ]);
 
-    const presentToday = todayAttendances.filter(
+    const presentToday = dayAttendances.filter(
       (a) => a.status === 'PRESENT',
     ).length;
-    const incompleteToday = todayAttendances.filter(
+    const incompleteToday = dayAttendances.filter(
       (a) => a.status === 'INCOMPLETE',
     ).length;
 
     return {
-      date: today,
+      date: targetDate,
       totalActiveEmployees: activeEmployeeCount,
       presentToday,
       incompleteToday,
-      notCheckedInToday: activeEmployeeCount - todayAttendances.length,
+      notCheckedInToday: activeEmployeeCount - dayAttendances.length,
     };
   }
 
   // ----- private -----
+  private async findRealRows(
+    filter: AttendanceFilterDto,
+    employeeIds?: number[],
+  ) {
+    const where: Record<string, unknown> = {};
+    if (filter.from && filter.to)
+      where.attendanceDate = Between(filter.from, filter.to);
+    if (filter.status && filter.status !== 'NOT_CHECKED_IN')
+      where.status = filter.status;
+    if (employeeIds) where.employeeId = In(employeeIds);
+
+    const attendances = await this.attendanceRepository.find({
+      where,
+      order: { attendanceDate: 'DESC' },
+    });
+    return this.attachEmployeeInfo(attendances);
+  }
+
+  private async findNotCheckedInRows(date: string, employeeIds?: number[]) {
+    const employeeWhere: Record<string, unknown> = { status: 'ACTIVE' };
+    if (employeeIds) employeeWhere.id = In(employeeIds);
+    const scopedEmployees = await this.employeeRepository.find({
+      where: employeeWhere,
+    });
+    if (scopedEmployees.length === 0) return [];
+
+    const checkedIn = await this.attendanceRepository.find({
+      where: {
+        attendanceDate: date,
+        employeeId: In(scopedEmployees.map((e) => e.id)),
+      },
+      select: ['employeeId'],
+    });
+    const checkedInIds = new Set(checkedIn.map((a) => a.employeeId));
+
+    return scopedEmployees
+      .filter((e) => !checkedInIds.has(e.id))
+      .map((e) => ({
+        id: null,
+        employeeId: e.id,
+        attendanceDate: date,
+        checkInTime: null,
+        checkOutTime: null,
+        status: 'NOT_CHECKED_IN' as const,
+        employee: this.toEmployeeSummary(e),
+      }));
+  }
+
   private async resolveEmployeeIdsInScope(
     filter: AttendanceFilterDto,
   ): Promise<number[] | undefined> {

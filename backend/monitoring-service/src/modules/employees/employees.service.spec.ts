@@ -42,6 +42,7 @@ describe('EmployeesService', () => {
       email: 'a@example.com',
       password: 'plain-text',
       role: 'EMPLOYEE' as const,
+      departmentId: 1,
       position: 'Staff',
       joinDate: '2024-01-01',
     };

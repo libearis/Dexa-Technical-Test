@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Between, Repository } from 'typeorm';
 import { EmployeeClientService } from '../employees/employee-client.service';
+import { CheckLocationDto } from './dto/check-location.dto';
 import { Attendance } from './entities/attendance.entity';
 
 interface AttendanceHistoryFilter {
@@ -33,7 +34,11 @@ export class AttendancesService {
   }
 
   // ----- public -----
-  async checkIn(employeeId: number, photo: Express.Multer.File) {
+  async checkIn(
+    employeeId: number,
+    photo: Express.Multer.File,
+    location?: CheckLocationDto,
+  ) {
     await this.employeeClientService.getActiveEmployee(employeeId);
 
     const now = new Date();
@@ -55,6 +60,8 @@ export class AttendancesService {
       checkInTime: now,
       checkInPhotoUrl: photoUrl,
       checkInPhotoExifTime: exifTime,
+      checkInLat: location?.lat != null ? String(location.lat) : null,
+      checkInLng: location?.lng != null ? String(location.lng) : null,
       status: 'INCOMPLETE',
       notes,
       createdBy: employeeId,
@@ -63,7 +70,11 @@ export class AttendancesService {
     return this.attendanceRepository.save(attendance);
   }
 
-  async checkOut(employeeId: number, photo: Express.Multer.File) {
+  async checkOut(
+    employeeId: number,
+    photo: Express.Multer.File,
+    location?: CheckLocationDto,
+  ) {
     const now = new Date();
     const attendanceDate = this.toDateOnly(now);
 
@@ -88,6 +99,8 @@ export class AttendancesService {
     attendance.checkOutTime = now;
     attendance.checkOutPhotoUrl = photoUrl;
     attendance.checkOutPhotoExifTime = exifTime;
+    attendance.checkOutLat = location?.lat != null ? String(location.lat) : null;
+    attendance.checkOutLng = location?.lng != null ? String(location.lng) : null;
     attendance.status = 'PRESENT';
     attendance.notes = notes ?? attendance.notes;
     attendance.updatedBy = employeeId;

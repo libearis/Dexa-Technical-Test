@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { useAuth } from '../context/useAuth';
 import './AppLayout.css';
+
+const DASHBOARD_LINK = { to: '/dashboard', label: 'Dashboard' };
 
 const EMPLOYEE_LINKS = [
   { to: '/attendance', label: 'Absensi' },
@@ -10,7 +12,6 @@ const EMPLOYEE_LINKS = [
 ];
 
 const HRD_LINKS = [
-  { to: '/dashboard', label: 'Dashboard' },
   { to: '/monitoring', label: 'Monitoring Absensi' },
   { to: '/employees', label: 'Karyawan' },
   { to: '/departments', label: 'Departemen' },
@@ -22,7 +23,10 @@ export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [search, setSearch] = useState('');
 
-  const links = user.role === 'HRD_ADMIN' ? [...EMPLOYEE_LINKS, ...HRD_LINKS] : EMPLOYEE_LINKS;
+  const links =
+    user.role === 'HRD_ADMIN'
+      ? [DASHBOARD_LINK, ...EMPLOYEE_LINKS, ...HRD_LINKS]
+      : EMPLOYEE_LINKS;
   const filteredLinks = links.filter((link) =>
     link.label.toLowerCase().includes(search.trim().toLowerCase()),
   );
@@ -35,10 +39,10 @@ export function AppLayout() {
   return (
     <div className="app-shell">
       <aside className={`sidebar ${sidebarOpen ? '' : 'collapsed'}`}>
-        <div className="sidebar-brand">
+        <Link to="/" className="sidebar-brand">
           <span className="brand-title">Absensi WFH</span>
           <span className="brand-sub">dexa group</span>
-        </div>
+        </Link>
 
         <label className="sidebar-search">
           <span className="sr-only">Cari menu</span>

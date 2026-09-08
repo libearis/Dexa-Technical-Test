@@ -21,6 +21,6 @@ export class AttendanceFilterDto {
   employeeId?: number;
 
   @IsOptional()
-  @IsIn(['PRESENT', 'INCOMPLETE'])
-  status?: 'PRESENT' | 'INCOMPLETE';
+  @IsIn(['PRESENT', 'INCOMPLETE', 'NOT_CHECKED_IN'])
+  status?: 'PRESENT' | 'INCOMPLETE' | 'NOT_CHECKED_IN';
 }

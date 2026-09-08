@@ -1,35 +1,59 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ATTENDANCE_BASE_URL } from '../../api/attendanceApi';
 import { monitoringApi } from '../../api/monitoringApi';
 
+const STATUS_LABELS = { PRESENT: 'Hadir', INCOMPLETE: 'Belum Lengkap', NOT_CHECKED_IN: 'Belum Absen' };
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export function AttendanceMonitoringPage() {
+  // Seeded from the dashboard's "click a status card" deep link, e.g.
+  // /monitoring?status=PRESENT&from=2026-03-05&to=2026-03-05 — falls back to today.
+  const [searchParams] = useSearchParams();
   const [departments, setDepartments] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [filters, setFilters] = useState({ from: '', to: '', departmentId: '', employeeId: '', status: '' });
+  const [filters, setFilters] = useState({
+    from: searchParams.get('from') || todayIso(),
+    to: searchParams.get('to') || todayIso(),
+    departmentId: '',
+    status: searchParams.get('status') || '',
+  });
+  const [searchDraft, setSearchDraft] = useState('');
+  const [search, setSearch] = useState('');
   const [records, setRecords] = useState([]);
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
     monitoringApi.get('/departments').then(({ data }) => setDepartments(data));
-    monitoringApi.get('/employees').then(({ data }) => setEmployees(data));
   }, []);
 
-  const loadRecords = async () => {
-    const params = Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== ''));
-    const { data } = await monitoringApi.get('/attendances', { params });
-    setRecords(data);
-  };
-
+  // Date/department/status apply instantly on change; only the employee
+  // name search below waits for the Cari button (or Enter).
   useEffect(() => {
-    loadRecords();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const params = Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== ''));
+    monitoringApi.get('/attendances', { params }).then(({ data }) => setRecords(data));
+  }, [filters]);
 
   const handleFilterChange = (field) => (event) => setFilters({ ...filters, [field]: event.target.value });
 
-  const handleFilterSubmit = (event) => {
+  // "Not Checked In" is computed on the fly against one specific day, so
+  // picking it collapses the range down to a single date field instead of
+  // letting you build an invalid combination.
+  const handleStatusChange = (event) => {
+    const value = event.target.value;
+    setFilters((current) => (value === 'NOT_CHECKED_IN' ? { ...current, status: value, to: current.from } : { ...current, status: value }));
+  };
+
+  const handleSingleDateChange = (event) => {
+    const value = event.target.value;
+    setFilters((current) => ({ ...current, from: value, to: value }));
+  };
+
+  const handleSearchSubmit = (event) => {
     event.preventDefault();
-    loadRecords();
+    setSearch(searchDraft);
   };
 
   const openDetail = async (id) => {
@@ -37,18 +61,32 @@ export function AttendanceMonitoringPage() {
     setSelected(data);
   };
 
+  const filteredRecords = records.filter((record) => {
+    const term = search.trim().toLowerCase();
+    return !term || (record.employee?.name ?? '').toLowerCase().includes(term);
+  });
+
   return (
     <div>
       <h1>Monitoring Absensi</h1>
-      <form className="inline-form" onSubmit={handleFilterSubmit}>
-        <label>
-          Dari Tanggal
-          <input type="date" value={filters.from} onChange={handleFilterChange('from')} />
-        </label>
-        <label>
-          Sampai Tanggal
-          <input type="date" value={filters.to} onChange={handleFilterChange('to')} />
-        </label>
+      <form className="inline-form" onSubmit={handleSearchSubmit}>
+        {filters.status === 'NOT_CHECKED_IN' ? (
+          <label>
+            Tanggal
+            <input type="date" value={filters.from} onChange={handleSingleDateChange} />
+          </label>
+        ) : (
+          <>
+            <label>
+              Dari Tanggal
+              <input type="date" value={filters.from} onChange={handleFilterChange('from')} />
+            </label>
+            <label>
+              Sampai Tanggal
+              <input type="date" value={filters.to} onChange={handleFilterChange('to')} />
+            </label>
+          </>
+        )}
         <label>
           Departemen
           <select value={filters.departmentId} onChange={handleFilterChange('departmentId')}>
@@ -61,25 +99,24 @@ export function AttendanceMonitoringPage() {
           </select>
         </label>
         <label>
-          Karyawan
-          <select value={filters.employeeId} onChange={handleFilterChange('employeeId')}>
+          Status
+          <select value={filters.status} onChange={handleStatusChange}>
             <option value="">Semua</option>
-            {employees.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name}
-              </option>
-            ))}
+            <option value="PRESENT">Hadir</option>
+            <option value="INCOMPLETE">Belum Lengkap</option>
+            <option value="NOT_CHECKED_IN">Belum Absen</option>
           </select>
         </label>
         <label>
-          Status
-          <select value={filters.status} onChange={handleFilterChange('status')}>
-            <option value="">Semua</option>
-            <option value="PRESENT">PRESENT</option>
-            <option value="INCOMPLETE">INCOMPLETE</option>
-          </select>
+          Cari Karyawan
+          <input
+            type="search"
+            placeholder="Nama karyawan"
+            value={searchDraft}
+            onChange={(event) => setSearchDraft(event.target.value)}
+          />
         </label>
-        <button type="submit">Filter</button>
+        <button type="submit">Cari</button>
       </form>
 
       <table>
@@ -94,20 +131,31 @@ export function AttendanceMonitoringPage() {
           </tr>
         </thead>
         <tbody>
-          {records.map((record) => (
-            <tr key={record.id}>
+          {filteredRecords.map((record) => (
+            <tr key={record.id ?? `not-checked-in-${record.employeeId}`}>
               <td>{record.attendanceDate}</td>
               <td>{record.employee?.name ?? '-'}</td>
               <td>{record.checkInTime && new Date(record.checkInTime).toLocaleTimeString()}</td>
               <td>{record.checkOutTime && new Date(record.checkOutTime).toLocaleTimeString()}</td>
-              <td>{record.status}</td>
+              <td>{STATUS_LABELS[record.status] ?? record.status}</td>
               <td>
-                <button className="secondary" onClick={() => openDetail(record.id)}>
-                  Detail
-                </button>
+                {record.id != null ? (
+                  <button className="secondary" onClick={() => openDetail(record.id)}>
+                    Detail
+                  </button>
+                ) : (
+                  '-'
+                )}
               </td>
             </tr>
           ))}
+          {filteredRecords.length === 0 && (
+            <tr>
+              <td colSpan={6} style={{ textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                Tidak ada data absensi yang cocok
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
 
@@ -134,6 +182,18 @@ export function AttendanceMonitoringPage() {
                   className="detail-photo"
                 />
               )}
+              {selected.checkInLat && selected.checkInLng && (
+                <p>
+                  Lokasi:{' '}
+                  <a
+                    href={`https://maps.google.com/?q=${selected.checkInLat},${selected.checkInLng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Lihat di peta
+                  </a>
+                </p>
+              )}
             </div>
             <div>
               <h3>Check-out</h3>
@@ -153,6 +213,18 @@ export function AttendanceMonitoringPage() {
                   alt="check-out"
                   className="detail-photo"
                 />
+              )}
+              {selected.checkOutLat && selected.checkOutLng && (
+                <p>
+                  Lokasi:{' '}
+                  <a
+                    href={`https://maps.google.com/?q=${selected.checkOutLat},${selected.checkOutLng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Lihat di peta
+                  </a>
+                </p>
               )}
             </div>
           </div>
