@@ -7,10 +7,11 @@ Implementation of the spec in [AGENTS.md](./AGENTS.md): two independent NestJS s
 ## Prerequisites
 
 - Node.js 20+
-- A running MySQL 8 server on `localhost:3306` (user `root` / password `Zerolair2001`,
-  matching the `.env` files already committed in each service)
+- A running MySQL 8 server, reachable with the credentials you put in each service's `.env`
+  (copy `.env.example` to `.env` in each of `backend/attendance-service`,
+  `backend/monitoring-service` and `frontend`, and fill in your own DB host/user/password)
 
-Each service's `.env` already contains its DB/JWT config (`DB_MASTER_NAME=master_db`,
+Each service's `.env` holds its own DB/JWT config (`DB_MASTER_NAME=master_db`,
 `DB_ATTENDANCE_NAME=attendance_db`). On first boot, both services auto-create their own
 tables via `TypeORM synchronize` on their primary (owned) connection only — the read-only
 secondary connection to the other service's database never synchronizes.
@@ -30,19 +31,22 @@ and seed a login for each role:
 ```bash
 cd backend/monitoring-service
 npm run start:dev   # let it create tables, then Ctrl+C or leave it running in another shell
-npm run seed         # creates 1 department, 1 HRD_ADMIN, 1 EMPLOYEE
+npm run seed         # creates 2 departments (HRD, Engineering), 1 HRD_ADMIN, 1 EMPLOYEE
 ```
 
-Seeded logins:
+Seeded logins (login uses `username`, not email — see AGENTS.md §2.3):
 
-| Role       | Email                     | Password    |
-| ---------- | ------------------------- | ----------- |
-| HRD_ADMIN  | hrd.admin@example.com     | password123 |
-| EMPLOYEE   | john.employee@example.com | password123 |
+| Role       | Username       | Password    |
+| ---------- | -------------- | ----------- |
+| HRD_ADMIN  | hrd.admin      | password123 |
+| EMPLOYEE   | john.employee  | password123 |
 
 ## Running everything
 
-Three processes, each in its own terminal:
+In VS Code: `Terminal → Run Task…` → **Run: All (BE + FE)** (or **Run: Backend Only (BE)** /
+**Run: Frontend Only (FE)**, or a single `Service: *` task — see `.vscode/tasks.json`).
+
+Or manually, three processes each in its own terminal:
 
 ```bash
 cd backend/attendance-service && npm run start:dev   # http://localhost:3001
