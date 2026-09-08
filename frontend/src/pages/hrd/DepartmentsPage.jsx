@@ -13,6 +13,7 @@ export function DepartmentsPage() {
   };
 
   useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect -- fetching from the API on mount, not deriving state
     load();
   }, []);
 

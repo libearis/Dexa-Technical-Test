@@ -4,7 +4,9 @@ import { Attendance } from '../modules/attendances/entities/attendance.entity';
 import { Employee } from '../modules/employees/entities/employee.entity';
 
 // Primary connection: owned by this service, read-write.
-export const attendanceDbConfig = (config: ConfigService): TypeOrmModuleOptions => ({
+export const attendanceDbConfig = (
+  config: ConfigService,
+): TypeOrmModuleOptions => ({
   name: 'attendance',
   type: 'mysql',
   host: config.get('DB_HOST'),
@@ -18,7 +20,9 @@ export const attendanceDbConfig = (config: ConfigService): TypeOrmModuleOptions 
 
 // Secondary connection: owned by monitoring-service, read-only from here.
 // synchronize is always false so this service can never alter master_db's schema.
-export const masterDbConfig = (config: ConfigService): TypeOrmModuleOptions => ({
+export const masterDbConfig = (
+  config: ConfigService,
+): TypeOrmModuleOptions => ({
   name: 'master',
   type: 'mysql',
   host: config.get('DB_HOST'),

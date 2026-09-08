@@ -43,10 +43,7 @@ Seeded logins (login uses `username`, not email — see AGENTS.md §2.3):
 
 ## Running everything
 
-In VS Code: `Terminal → Run Task…` → **Run: All (BE + FE)** (or **Run: Backend Only (BE)** /
-**Run: Frontend Only (FE)**, or a single `Service: *` task — see `.vscode/tasks.json`).
-
-Or manually, three processes each in its own terminal:
+Three processes, each in its own terminal:
 
 ```bash
 cd backend/attendance-service && npm run start:dev   # http://localhost:3001

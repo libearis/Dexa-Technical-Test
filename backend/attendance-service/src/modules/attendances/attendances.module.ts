@@ -7,7 +7,10 @@ import { AttendancesService } from './attendances.service';
 import { Attendance } from './entities/attendance.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Attendance], 'attendance'), EmployeesModule],
+  imports: [
+    TypeOrmModule.forFeature([Attendance], 'attendance'),
+    EmployeesModule,
+  ],
   controllers: [AttendancesController],
   providers: [AttendancesService, AttendanceCron],
 })

@@ -25,7 +25,9 @@ export class AttendancesService {
     private readonly configService: ConfigService,
   ) {
     this.uploadDir = this.configService.get<string>('UPLOAD_DIR') ?? 'uploads';
-    this.exifToleranceMinutes = Number(this.configService.get('EXIF_TOLERANCE_MINUTES') ?? 10);
+    this.exifToleranceMinutes = Number(
+      this.configService.get('EXIF_TOLERANCE_MINUTES') ?? 10,
+    );
     fs.mkdirSync(path.join(this.uploadDir, 'check-in'), { recursive: true });
     fs.mkdirSync(path.join(this.uploadDir, 'check-out'), { recursive: true });
   }
@@ -75,7 +77,9 @@ export class AttendancesService {
       throw new BadRequestException('Anda sudah melakukan check-out hari ini');
     }
     if (!this.isAfterClosingHour(now)) {
-      throw new BadRequestException('Check-out hanya bisa dilakukan setelah pukul 17:00');
+      throw new BadRequestException(
+        'Check-out hanya bisa dilakukan setelah pukul 17:00',
+      );
     }
 
     const { exifTime, notes } = await this.validateExifTimestamp(photo, now);
@@ -107,7 +111,10 @@ export class AttendancesService {
     const result = await this.attendanceRepository
       .createQueryBuilder()
       .update(Attendance)
-      .set({ notes: () => "COALESCE(notes, 'Check-out tidak dilakukan sebelum tengah malam')" })
+      .set({
+        notes: () =>
+          "COALESCE(notes, 'Check-out tidak dilakukan sebelum tengah malam')",
+      })
       .where('attendance_date < :today', { today: todayStart })
       .andWhere('check_out_time IS NULL')
       .andWhere('status = :status', { status: 'INCOMPLETE' })
@@ -131,11 +138,13 @@ export class AttendancesService {
     if (!exifTime) {
       return {
         exifTime: null,
-        notes: 'Metadata EXIF tidak ditemukan pada foto, silakan foto ulang menggunakan kamera langsung',
+        notes:
+          'Metadata EXIF tidak ditemukan pada foto, silakan foto ulang menggunakan kamera langsung',
       };
     }
 
-    const diffMinutes = Math.abs(serverTime.getTime() - exifTime.getTime()) / 60000;
+    const diffMinutes =
+      Math.abs(serverTime.getTime() - exifTime.getTime()) / 60000;
     if (diffMinutes > this.exifToleranceMinutes) {
       throw new BadRequestException(
         `Waktu pengambilan foto (${exifTime.toISOString()}) tidak sesuai dengan waktu server, silakan foto ulang`,
@@ -153,7 +162,10 @@ export class AttendancesService {
     return date.toISOString().slice(0, 10);
   }
 
-  private savePhoto(photo: Express.Multer.File, subdir: 'check-in' | 'check-out'): string {
+  private savePhoto(
+    photo: Express.Multer.File,
+    subdir: 'check-in' | 'check-out',
+  ): string {
     if (!photo) {
       throw new BadRequestException('Foto wajib diunggah');
     }

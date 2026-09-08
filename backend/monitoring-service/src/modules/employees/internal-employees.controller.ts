@@ -1,4 +1,11 @@
-import { Controller, ForbiddenException, Get, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { InternalTokenGuard } from '../../common/guards/internal-token.guard';
 import { EmployeesService } from './employees.service';
 

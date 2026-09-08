@@ -1,5 +1,9 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
@@ -23,8 +27,10 @@ export class EmployeeClientService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {
-    this.baseUrl = this.configService.get<string>('MONITORING_SERVICE_URL') ?? '';
-    this.internalToken = this.configService.get<string>('INTERNAL_SERVICE_TOKEN') ?? '';
+    this.baseUrl =
+      this.configService.get<string>('MONITORING_SERVICE_URL') ?? '';
+    this.internalToken =
+      this.configService.get<string>('INTERNAL_SERVICE_TOKEN') ?? '';
   }
 
   // ----- public -----

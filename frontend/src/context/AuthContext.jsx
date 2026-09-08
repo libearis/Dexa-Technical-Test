@@ -1,7 +1,6 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { attendanceApi } from '../api/attendanceApi';
-
-const AuthContext = createContext(null);
+import { AuthContext } from './auth-context';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -26,10 +25,4 @@ export function AuthProvider({ children }) {
   const value = useMemo(() => ({ user, login, logout }), [user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
 }

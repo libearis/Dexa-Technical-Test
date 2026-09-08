@@ -19,7 +19,8 @@ export class AttendancesService {
     const employeeIds = await this.resolveEmployeeIdsInScope(filter);
 
     const where: Record<string, unknown> = {};
-    if (filter.from && filter.to) where.attendanceDate = Between(filter.from, filter.to);
+    if (filter.from && filter.to)
+      where.attendanceDate = Between(filter.from, filter.to);
     if (filter.status) where.status = filter.status;
     if (employeeIds) where.employeeId = In(employeeIds);
 
@@ -31,12 +32,19 @@ export class AttendancesService {
   }
 
   async findOne(id: number) {
-    const attendance = await this.attendanceRepository.findOne({ where: { id } });
+    const attendance = await this.attendanceRepository.findOne({
+      where: { id },
+    });
     if (!attendance) {
       throw new NotFoundException('Data absensi tidak ditemukan');
     }
-    const employee = await this.employeeRepository.findOne({ where: { id: attendance.employeeId } });
-    return { ...attendance, employee: employee ? this.toEmployeeSummary(employee) : null };
+    const employee = await this.employeeRepository.findOne({
+      where: { id: attendance.employeeId },
+    });
+    return {
+      ...attendance,
+      employee: employee ? this.toEmployeeSummary(employee) : null,
+    };
   }
 
   async getDashboardSummary() {
@@ -46,8 +54,12 @@ export class AttendancesService {
       this.attendanceRepository.find({ where: { attendanceDate: today } }),
     ]);
 
-    const presentToday = todayAttendances.filter((a) => a.status === 'PRESENT').length;
-    const incompleteToday = todayAttendances.filter((a) => a.status === 'INCOMPLETE').length;
+    const presentToday = todayAttendances.filter(
+      (a) => a.status === 'PRESENT',
+    ).length;
+    const incompleteToday = todayAttendances.filter(
+      (a) => a.status === 'INCOMPLETE',
+    ).length;
 
     return {
       date: today,
@@ -59,7 +71,9 @@ export class AttendancesService {
   }
 
   // ----- private -----
-  private async resolveEmployeeIdsInScope(filter: AttendanceFilterDto): Promise<number[] | undefined> {
+  private async resolveEmployeeIdsInScope(
+    filter: AttendanceFilterDto,
+  ): Promise<number[] | undefined> {
     if (filter.employeeId) return [filter.employeeId];
     if (filter.departmentId) {
       const employees = await this.employeeRepository.find({
@@ -74,7 +88,9 @@ export class AttendancesService {
   private async attachEmployeeInfo(attendances: Attendance[]) {
     if (attendances.length === 0) return [];
     const employeeIds = [...new Set(attendances.map((a) => a.employeeId))];
-    const employees = await this.employeeRepository.find({ where: { id: In(employeeIds) } });
+    const employees = await this.employeeRepository.find({
+      where: { id: In(employeeIds) },
+    });
     const employeeById = new Map(employees.map((e) => [e.id, e]));
 
     return attendances.map((attendance) => ({

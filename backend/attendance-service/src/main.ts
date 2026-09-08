@@ -11,9 +11,12 @@ async function bootstrap() {
 
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.useStaticAssets(join(process.cwd(), config.get<string>('UPLOAD_DIR') ?? 'uploads'), {
-    prefix: '/uploads',
-  });
+  app.useStaticAssets(
+    join(process.cwd(), config.get<string>('UPLOAD_DIR') ?? 'uploads'),
+    {
+      prefix: '/uploads',
+    },
+  );
 
   await app.listen(config.get<number>('PORT') ?? 3001);
 }

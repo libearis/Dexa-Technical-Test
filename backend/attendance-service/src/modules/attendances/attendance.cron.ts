@@ -13,6 +13,8 @@ export class AttendanceCron {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleEndOfDay() {
     const affected = await this.attendancesService.markIncompleteBeforeToday();
-    this.logger.log(`End-of-day job marked ${affected} attendance record(s) as incomplete`);
+    this.logger.log(
+      `End-of-day job marked ${affected} attendance record(s) as incomplete`,
+    );
   }
 }

@@ -29,7 +29,11 @@ export class Attendance {
   @Column({ name: 'check_in_photo_url' })
   checkInPhotoUrl: string;
 
-  @Column({ name: 'check_in_photo_exif_time', type: 'datetime', nullable: true })
+  @Column({
+    name: 'check_in_photo_exif_time',
+    type: 'datetime',
+    nullable: true,
+  })
   checkInPhotoExifTime: Date | null;
 
   @Column({ name: 'check_out_time', type: 'datetime', nullable: true })
@@ -38,10 +42,18 @@ export class Attendance {
   @Column({ name: 'check_out_photo_url', nullable: true })
   checkOutPhotoUrl: string | null;
 
-  @Column({ name: 'check_out_photo_exif_time', type: 'datetime', nullable: true })
+  @Column({
+    name: 'check_out_photo_exif_time',
+    type: 'datetime',
+    nullable: true,
+  })
   checkOutPhotoExifTime: Date | null;
 
-  @Column({ type: 'enum', enum: ['PRESENT', 'INCOMPLETE'], default: 'INCOMPLETE' })
+  @Column({
+    type: 'enum',
+    enum: ['PRESENT', 'INCOMPLETE'],
+    default: 'INCOMPLETE',
+  })
   status: AttendanceStatus;
 
   @Column({ nullable: true })

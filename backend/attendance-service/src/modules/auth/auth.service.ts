@@ -13,7 +13,9 @@ export class AuthService {
 
   // ----- public -----
   async login(dto: LoginDto) {
-    const employee = await this.employeeLookupService.findByUsername(dto.username);
+    const employee = await this.employeeLookupService.findByUsername(
+      dto.username,
+    );
     if (!employee) {
       throw new UnauthorizedException('Username atau password salah');
     }
@@ -21,12 +23,19 @@ export class AuthService {
       throw new UnauthorizedException('Akun karyawan tidak aktif');
     }
 
-    const passwordMatches = await bcrypt.compare(dto.password, employee.password);
+    const passwordMatches = await bcrypt.compare(
+      dto.password,
+      employee.password,
+    );
     if (!passwordMatches) {
       throw new UnauthorizedException('Username atau password salah');
     }
 
-    const accessToken = this.signToken(employee.id, employee.username, employee.role);
+    const accessToken = this.signToken(
+      employee.id,
+      employee.username,
+      employee.role,
+    );
     return {
       accessToken,
       user: {

@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -23,7 +27,10 @@ export class EmployeesService {
   ) {}
 
   // ----- public -----
-  async create(dto: CreateEmployeeDto, actorId: number | null): Promise<PublicEmployee> {
+  async create(
+    dto: CreateEmployeeDto,
+    actorId: number | null,
+  ): Promise<PublicEmployee> {
     await this.assertEmailAndUsernameAvailable(dto.email, dto.username);
 
     const employee = this.employeeRepository.create({
@@ -41,7 +48,10 @@ export class EmployeesService {
     const where: Record<string, unknown> = {};
     if (filter.departmentId) where.departmentId = filter.departmentId;
     if (filter.status) where.status = filter.status;
-    const employees = await this.employeeRepository.find({ where, order: { name: 'ASC' } });
+    const employees = await this.employeeRepository.find({
+      where,
+      order: { name: 'ASC' },
+    });
     return employees.map((employee) => this.sanitize(employee));
   }
 
@@ -49,7 +59,11 @@ export class EmployeesService {
     return this.sanitize(await this.findOneWithPassword(id));
   }
 
-  async update(id: number, dto: UpdateEmployeeDto, actorId: number | null): Promise<PublicEmployee> {
+  async update(
+    id: number,
+    dto: UpdateEmployeeDto,
+    actorId: number | null,
+  ): Promise<PublicEmployee> {
     const employee = await this.findOneWithPassword(id);
     await this.assertEmailAndUsernameAvailable(dto.email, dto.username, id);
 
@@ -62,7 +76,10 @@ export class EmployeesService {
     return this.sanitize(await this.employeeRepository.save(employee));
   }
 
-  async deactivate(id: number, actorId: number | null): Promise<PublicEmployee> {
+  async deactivate(
+    id: number,
+    actorId: number | null,
+  ): Promise<PublicEmployee> {
     const employee = await this.findOneWithPassword(id);
     employee.status = 'INACTIVE';
     employee.updatedBy = actorId;
@@ -84,13 +101,17 @@ export class EmployeesService {
     excludeId?: number,
   ): Promise<void> {
     if (email) {
-      const existing = await this.employeeRepository.findOne({ where: { email } });
+      const existing = await this.employeeRepository.findOne({
+        where: { email },
+      });
       if (existing && existing.id !== excludeId) {
         throw new ConflictException('Email sudah terdaftar');
       }
     }
     if (username) {
-      const existing = await this.employeeRepository.findOne({ where: { username } });
+      const existing = await this.employeeRepository.findOne({
+        where: { username },
+      });
       if (existing && existing.id !== excludeId) {
         throw new ConflictException('Username sudah terdaftar');
       }
@@ -98,7 +119,8 @@ export class EmployeesService {
   }
 
   private sanitize(employee: Employee): PublicEmployee {
-    const { password: _password, ...rest } = employee;
-    return rest;
+    const rest: Partial<Employee> = { ...employee };
+    delete rest.password;
+    return rest as PublicEmployee;
   }
 }

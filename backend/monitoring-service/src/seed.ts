@@ -11,7 +11,10 @@ async function seed() {
   const employeesService = app.get(EmployeesService);
 
   const hrdDepartment = await departmentsService.create({ name: 'HRD' }, null);
-  const engineeringDepartment = await departmentsService.create({ name: 'Engineering' }, null);
+  const engineeringDepartment = await departmentsService.create(
+    { name: 'Engineering' },
+    null,
+  );
 
   await employeesService.create(
     {

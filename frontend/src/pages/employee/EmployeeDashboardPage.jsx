@@ -17,6 +17,7 @@ export function EmployeeDashboardPage() {
   };
 
   useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect -- fetching from the API on mount, not deriving state
     loadHistory();
   }, []);
 
@@ -54,7 +55,7 @@ export function EmployeeDashboardPage() {
       <section className="attendance-actions">
         <div className="action-card">
           <h2>Check-in</h2>
-          <PhotoCaptureInput onChange={setCheckInPhoto} />
+          <PhotoCaptureInput label="Foto check-in" onChange={setCheckInPhoto} />
           <button
             disabled={loading || !!todayRecord}
             onClick={() => handleAction('check-in', checkInPhoto)}
@@ -64,7 +65,7 @@ export function EmployeeDashboardPage() {
         </div>
         <div className="action-card">
           <h2>Check-out</h2>
-          <PhotoCaptureInput onChange={setCheckOutPhoto} />
+          <PhotoCaptureInput label="Foto check-out" onChange={setCheckOutPhoto} />
           <button
             disabled={loading || !todayRecord || !!todayRecord?.checkOutTime}
             onClick={() => handleAction('check-out', checkOutPhoto)}

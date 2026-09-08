@@ -27,7 +27,9 @@ export class DepartmentsService {
   }
 
   async findOne(id: number): Promise<Department> {
-    const department = await this.departmentRepository.findOne({ where: { id } });
+    const department = await this.departmentRepository.findOne({
+      where: { id },
+    });
     if (!department) {
       throw new NotFoundException('Departemen tidak ditemukan');
     }
@@ -46,6 +48,9 @@ export class DepartmentsService {
   // deletedBy is actually persisted alongside it.
   async remove(id: number, actorId: number | null): Promise<void> {
     await this.findOne(id);
-    await this.departmentRepository.update(id, { deletedAt: new Date(), deletedBy: actorId });
+    await this.departmentRepository.update(id, {
+      deletedAt: new Date(),
+      deletedBy: actorId,
+    });
   }
 }

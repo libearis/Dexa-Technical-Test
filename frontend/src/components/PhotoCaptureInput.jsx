@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-export function PhotoCaptureInput({ onChange }) {
+export function PhotoCaptureInput({ label = 'Ambil foto', onChange }) {
   const inputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
@@ -12,13 +12,16 @@ export function PhotoCaptureInput({ onChange }) {
 
   return (
     <div className="photo-capture">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-      />
+      <label>
+        {label}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleFileChange}
+        />
+      </label>
       {previewUrl && <img src={previewUrl} alt="preview" className="photo-preview" />}
     </div>
   );

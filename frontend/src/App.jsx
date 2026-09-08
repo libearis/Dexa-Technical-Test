@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
 import { EmployeeDashboardPage } from './pages/employee/EmployeeDashboardPage';
 import { AttendanceMonitoringPage } from './pages/hrd/AttendanceMonitoringPage';
 import { DepartmentsPage } from './pages/hrd/DepartmentsPage';

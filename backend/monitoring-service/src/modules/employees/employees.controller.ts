@@ -9,7 +9,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser, CurrentUserPayload } from '../../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -24,12 +27,18 @@ export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
   @Post()
-  create(@Body() dto: CreateEmployeeDto, @CurrentUser() actor: CurrentUserPayload) {
+  create(
+    @Body() dto: CreateEmployeeDto,
+    @CurrentUser() actor: CurrentUserPayload,
+  ) {
     return this.employeesService.create(dto, actor.employeeId);
   }
 
   @Get()
-  findAll(@Query('departmentId') departmentId?: string, @Query('status') status?: string) {
+  findAll(
+    @Query('departmentId') departmentId?: string,
+    @Query('status') status?: string,
+  ) {
     return this.employeesService.findAll({
       departmentId: departmentId ? Number(departmentId) : undefined,
       status,
@@ -51,7 +60,10 @@ export class EmployeesController {
   }
 
   @Patch(':id/deactivate')
-  deactivate(@Param('id', ParseIntPipe) id: number, @CurrentUser() actor: CurrentUserPayload) {
+  deactivate(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() actor: CurrentUserPayload,
+  ) {
     return this.employeesService.deactivate(id, actor.employeeId);
   }
 }

@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 // Protects endpoints meant only for service-to-service calls (e.g. from attendance-service),
@@ -10,7 +15,10 @@ export class InternalTokenGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const token = request.headers['x-internal-token'];
-    if (!token || token !== this.configService.get<string>('INTERNAL_SERVICE_TOKEN')) {
+    if (
+      !token ||
+      token !== this.configService.get<string>('INTERNAL_SERVICE_TOKEN')
+    ) {
       throw new UnauthorizedException('Token internal tidak valid');
     }
     return true;

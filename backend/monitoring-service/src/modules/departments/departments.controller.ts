@@ -9,7 +9,10 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { CurrentUser, CurrentUserPayload } from '../../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '../../common/decorators/current-user.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -24,7 +27,10 @@ export class DepartmentsController {
   constructor(private readonly departmentsService: DepartmentsService) {}
 
   @Post()
-  create(@Body() dto: CreateDepartmentDto, @CurrentUser() actor: CurrentUserPayload) {
+  create(
+    @Body() dto: CreateDepartmentDto,
+    @CurrentUser() actor: CurrentUserPayload,
+  ) {
     return this.departmentsService.create(dto, actor.employeeId);
   }
 
@@ -48,7 +54,10 @@ export class DepartmentsController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() actor: CurrentUserPayload) {
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() actor: CurrentUserPayload,
+  ) {
     return this.departmentsService.remove(id, actor.employeeId);
   }
 }
