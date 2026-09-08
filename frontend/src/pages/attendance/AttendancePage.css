@@ -1,0 +1,38 @@
+.attendance-page {
+  max-width: 480px;
+}
+
+.attendance-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attendance-status {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.attendance-card button {
+  padding: 0.7rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.attendance-card button:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.attendance-card button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

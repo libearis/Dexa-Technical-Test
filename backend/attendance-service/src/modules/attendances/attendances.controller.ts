@@ -23,7 +23,7 @@ export class AttendancesController {
   constructor(private readonly attendancesService: AttendancesService) {}
 
   @Post('check-in')
-  @Roles('EMPLOYEE')
+  @Roles('EMPLOYEE', 'HRD_ADMIN')
   @UseInterceptors(FileInterceptor('photo'))
   checkIn(
     @CurrentUser() user: CurrentUserPayload,
@@ -33,7 +33,7 @@ export class AttendancesController {
   }
 
   @Post('check-out')
-  @Roles('EMPLOYEE')
+  @Roles('EMPLOYEE', 'HRD_ADMIN')
   @UseInterceptors(FileInterceptor('photo'))
   checkOut(
     @CurrentUser() user: CurrentUserPayload,
@@ -43,7 +43,7 @@ export class AttendancesController {
   }
 
   @Get('history')
-  @Roles('EMPLOYEE')
+  @Roles('EMPLOYEE', 'HRD_ADMIN')
   getHistory(
     @CurrentUser() user: CurrentUserPayload,
     @Query('from') from?: string,

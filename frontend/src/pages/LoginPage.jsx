@@ -17,7 +17,7 @@ export function LoginPage() {
     setLoading(true);
     try {
       const user = await login(username, password);
-      navigate(user.role === 'HRD_ADMIN' ? '/hrd' : '/');
+      navigate(user.role === 'HRD_ADMIN' ? '/dashboard' : '/attendance');
     } catch (err) {
       setError(err.response?.data?.message || 'Login gagal');
     } finally {
@@ -28,7 +28,10 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
-        <h1>Absensi WFH</h1>
+        <div className="login-brand">
+          <h1>Absensi WFH</h1>
+          <span className="login-brand-sub">dexa group</span>
+        </div>
         <p>Masuk dengan akun karyawan atau HRD Admin</p>
         <label>
           Username

@@ -1,6 +1,17 @@
 :root {
   color-scheme: light;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  /* Dexa Group-inspired red/orange palette */
+  --color-primary: #d21f1f;
+  --color-primary-dark: #a71717;
+  --color-accent: #f5811f;
+  --color-gradient: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  --color-bg: #f3f4f6;
+  --color-surface: #ffffff;
+  --color-border: #e5e7eb;
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
 }
 
 * {
@@ -9,8 +20,8 @@
 
 body {
   margin: 0;
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 h1 {
@@ -21,4 +32,16 @@ h1 {
 h2 {
   font-size: 1.1rem;
   margin: 0 0 0.5rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

@@ -16,7 +16,7 @@ describe('LoginPage', () => {
     navigateMock.mockReset();
   });
 
-  it('submits the entered username/password and redirects HRD_ADMIN to /hrd', async () => {
+  it('submits the entered username/password and redirects HRD_ADMIN to /dashboard', async () => {
     const user = userEvent.setup();
     const login = vi.fn().mockResolvedValue({ role: 'HRD_ADMIN' });
     useAuth.mockReturnValue({ login });
@@ -27,10 +27,10 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: 'Login' }));
 
     expect(login).toHaveBeenCalledWith('hrd.admin', 'password123');
-    expect(navigateMock).toHaveBeenCalledWith('/hrd');
+    expect(navigateMock).toHaveBeenCalledWith('/dashboard');
   });
 
-  it('redirects EMPLOYEE accounts to /', async () => {
+  it('redirects EMPLOYEE accounts to /attendance', async () => {
     const user = userEvent.setup();
     const login = vi.fn().mockResolvedValue({ role: 'EMPLOYEE' });
     useAuth.mockReturnValue({ login });
@@ -40,7 +40,7 @@ describe('LoginPage', () => {
     await user.type(screen.getByLabelText('Password'), 'password123');
     await user.click(screen.getByRole('button', { name: 'Login' }));
 
-    expect(navigateMock).toHaveBeenCalledWith('/');
+    expect(navigateMock).toHaveBeenCalledWith('/attendance');
   });
 
   it('shows the API error message when login fails', async () => {

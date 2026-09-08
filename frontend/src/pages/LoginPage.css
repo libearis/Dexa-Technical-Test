@@ -3,18 +3,36 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f3f4f6;
+  background: var(--color-gradient);
 }
 
 .login-card {
-  background: #fff;
+  background: var(--color-surface);
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   width: 320px;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: -0.5rem;
+}
+
+.login-brand h1 {
+  margin: 0;
+}
+
+.login-brand-sub {
+  font-style: italic;
+  font-weight: 700;
+  text-transform: lowercase;
+  color: var(--color-primary);
+  font-size: 0.9rem;
 }
 
 .login-card label {
@@ -33,11 +51,15 @@
 .login-card button {
   margin-top: 0.5rem;
   padding: 0.6rem;
-  background: #1f2937;
+  background: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.login-card button:hover:not(:disabled) {
+  background: var(--color-primary-dark);
 }
 
 .login-card button:disabled {
@@ -46,7 +68,7 @@
 }
 
 .login-error {
-  color: #dc2626;
+  color: var(--color-primary-dark);
   font-size: 0.85rem;
   margin: 0;
 }
