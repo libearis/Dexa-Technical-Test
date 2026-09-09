@@ -159,7 +159,9 @@ export class AttendancesService {
     let exifTime: Date | null = null;
     try {
       const data = await exifr.parse(photo.buffer, ['DateTimeOriginal']);
-      exifTime = data?.DateTimeOriginal ?? null;
+      exifTime = data?.DateTimeOriginal
+        ? this.toJakartaInstant(data.DateTimeOriginal)
+        : null;
     } catch {
       exifTime = null;
     }
@@ -176,11 +178,38 @@ export class AttendancesService {
       Math.abs(serverTime.getTime() - exifTime.getTime()) / 60000;
     if (diffMinutes > this.exifToleranceMinutes) {
       throw new BadRequestException(
-        `Waktu pengambilan foto (${exifTime.toISOString()}) tidak sesuai dengan waktu server, silakan foto ulang`,
+        `Waktu foto (${this.formatJakartaTime(exifTime)} WIB) berbeda ${Math.round(diffMinutes)} menit dari waktu server (${this.formatJakartaTime(serverTime)} WIB) — melebihi toleransi ${this.exifToleranceMinutes} menit, silakan foto ulang`,
       );
     }
 
     return { exifTime, notes: null };
+  }
+
+  // EXIF's DateTimeOriginal has no timezone marker, so `exifr` falls back to
+  // interpreting it using whatever local timezone the server process happens
+  // to run in — correct here (this dev machine resolves to Asia/Jakarta), but
+  // it would silently be wrong by a full UTC offset on a server configured for
+  // e.g. UTC. Employees are always in WIB, so re-anchor to a fixed +7 offset
+  // instead of trusting the OS's ambient timezone.
+  private toJakartaInstant(exifLocalDate: Date): Date {
+    return new Date(
+      Date.UTC(
+        exifLocalDate.getFullYear(),
+        exifLocalDate.getMonth(),
+        exifLocalDate.getDate(),
+        exifLocalDate.getHours() - 7,
+        exifLocalDate.getMinutes(),
+        exifLocalDate.getSeconds(),
+      ),
+    );
+  }
+
+  private formatJakartaTime(date: Date): string {
+    return date.toLocaleString('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      dateStyle: 'medium',
+      timeStyle: 'medium',
+    });
   }
 
   private isAfterClosingHour(date: Date): boolean {

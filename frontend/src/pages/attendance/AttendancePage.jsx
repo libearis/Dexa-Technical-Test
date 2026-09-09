@@ -20,7 +20,12 @@ function getLocation() {
     }
     navigator.geolocation.getCurrentPosition(
       (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
-      () => resolve(null),
+      (error) => {
+        // Swallowed on purpose (best-effort audit trail, never blocks check-in) — logged so
+        // "why is lat/lng empty" is answerable from the browser console instead of a guess.
+        console.warn('Geolocation unavailable:', error.code, error.message);
+        resolve(null);
+      },
       { enableHighAccuracy: false, timeout: 5000, maximumAge: 60_000 },
     );
   });

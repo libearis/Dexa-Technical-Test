@@ -119,7 +119,7 @@ describe('AttendancesService', () => {
       });
 
       await expect(service.checkIn(1, mockPhoto())).rejects.toThrow(
-        /tidak sesuai dengan waktu server/,
+        /melebihi toleransi/,
       );
     });
 
