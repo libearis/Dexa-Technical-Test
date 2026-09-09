@@ -66,3 +66,7 @@ history) and `HRD_ADMIN` accounts to `/hrd` (dashboard, monitoring, employees, d
   exclusively through a read-only DB connection (see AGENTS.md §4). An HTTP client wrapper is
   the documented escalation path if a cross-service operation ever needs real business logic
   (not just a data read), but none exists today.
+- Because of that, attendance-service has no runtime dependency on monitoring-service being up —
+  login, check-in, and check-out keep working even if monitoring-service is stopped, as long as
+  MySQL itself is still reachable (attendance-service reads `master_db.employees` directly via
+  its own read-only connection, see `EmployeeLookupService`).
