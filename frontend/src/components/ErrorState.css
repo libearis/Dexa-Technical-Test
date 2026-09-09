@@ -1,0 +1,46 @@
+.error-state {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.error-state-code {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: var(--color-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+
+.error-state h2 {
+  margin: 0.5rem 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.error-state p {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  margin: 0 0 1rem;
+}
+
+.error-state button {
+  padding: 0.55rem 1.1rem;
+}
+
+/* Dashboard's summary section: same message, smaller footprint, fits in place of the card grid. */
+.error-state--compact {
+  padding: 1.5rem 1.25rem;
+}
+
+.error-state--compact .error-state-code {
+  font-size: 1.6rem;
+}
+
+.error-state--compact h2 {
+  font-size: 0.95rem;
+}

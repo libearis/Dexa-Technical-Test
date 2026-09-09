@@ -41,7 +41,11 @@ describe('AttendancesController', () => {
 
   it('checkOut delegates to the service with the current employee id, photo, and location', async () => {
     await controller.checkOut(user, photo, location);
-    expect(attendancesService.checkOut).toHaveBeenCalledWith(7, photo, location);
+    expect(attendancesService.checkOut).toHaveBeenCalledWith(
+      7,
+      photo,
+      location,
+    );
   });
 
   it('getHistory delegates to the service with the current employee id and the date filter', async () => {

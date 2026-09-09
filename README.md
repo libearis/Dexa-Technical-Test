@@ -62,5 +62,7 @@ history) and `HRD_ADMIN` accounts to `/hrd` (dashboard, monitoring, employees, d
   dedicated tools — accepted trade-off for this scope, not a gap that was missed.
 - HRD Admin monitoring is view-only by design; there is no edit/delete endpoint for
   attendance records.
-- No message broker between services — plain REST via `@nestjs/axios`, wrapped in
-  `EmployeeClientService` (attendance-service) so the dependency is explicit.
+- No inter-service HTTP calls and no message broker — both services talk to each other's data
+  exclusively through a read-only DB connection (see AGENTS.md §4). An HTTP client wrapper is
+  the documented escalation path if a cross-service operation ever needs real business logic
+  (not just a data read), but none exists today.

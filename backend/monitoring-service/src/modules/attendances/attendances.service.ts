@@ -24,8 +24,7 @@ export class AttendancesService {
       !!filter.from && !!filter.to && filter.from === filter.to;
     const includeRealRows = filter.status !== 'NOT_CHECKED_IN';
     const includeNotCheckedIn =
-      isSingleDate &&
-      (!filter.status || filter.status === 'NOT_CHECKED_IN');
+      isSingleDate && (!filter.status || filter.status === 'NOT_CHECKED_IN');
 
     const realRows = includeRealRows
       ? await this.findRealRows(filter, employeeIds)

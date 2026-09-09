@@ -164,14 +164,28 @@ sama, selalu ditambahkan sebagai kolom paling akhir di tabel:
 
 ## 4. Komunikasi Antar Service
 
-Menggunakan **REST API biasa** lewat `@nestjs/axios` (`HttpModule`), **tanpa message broker**.
+Saat ini **tidak ada** panggilan HTTP antar service — kedua service berkomunikasi murni lewat
+koneksi DB read-only masing-masing (lihat 2.1), termasuk untuk validasi status employee aktif
+sebelum izinkan check-in (`attendance-service` baca langsung `master_db.employees` via
+`EmployeeLookupService`, bukan memanggil API `monitoring-service`).
 
-- Dibungkus dalam client service khusus, contoh: `EmployeeClientService` di `attendance-service`
-  yang memanggil endpoint `monitoring-service` bila perlu data employee real-time (bukan dari read-replica connection).
-- Prioritaskan baca lewat secondary DB connection (read-only) untuk data yang sifatnya query/join;
-  gunakan HTTP call antar service hanya untuk operasi yang butuh business logic dari service pemilik data
-  (misal validasi status employee aktif sebelum izinkan check-in).
-- Base URL service lain disimpan di `.env` (`MONITORING_SERVICE_URL`, `ATTENDANCE_SERVICE_URL`).
+- **Kenapa bukan HTTP call untuk validasi status**: koneksi read-only itu live ke tabel yang sama
+  persis yang ditulis `monitoring-service` — tidak ada replication lag, tidak ada data basi. Jadi
+  untuk cek "apakah row ini `ACTIVE`" tanpa logika tambahan, baca-langsung dan panggil-API
+  menghasilkan jawaban yang identik, tapi panggil-API membuat `attendance-service` berhenti bekerja
+  kalau proses `monitoring-service` down — meski database-nya sehat. Trade-off itu tidak sepadan
+  untuk cek sesederhana ini.
+- **Kapan HTTP call antar service baru jadi masuk akal**: begitu operasinya butuh *keputusan*,
+  bukan cuma *data* — misal aturan eligibility berkembang jadi lebih dari sekadar `status`
+  (butuh cek cuti, approval, dll), sehingga logikanya harus tetap dimiliki satu tempat saja
+  (service pemilik data) agar tidak diduplikasi dan berisiko tidak sinkron antar service. Kalau
+  kebutuhan itu muncul, dibungkus dalam client service khusus (mis. `EmployeeClientService`) supaya
+  dependency antar service eksplisit dan mudah dilacak — bukan dipanggil langsung dari controller
+  service lain.
+- Prioritaskan baca lewat secondary DB connection (read-only) untuk hampir semua kasus di skala
+  aplikasi ini; HTTP call antar service adalah pengecualian yang harus punya alasan konkret
+  (bukan default), justru karena ia mengorbankan independensi uptime yang jadi alasan utama pakai
+  multi-connection di awal.
 
 ---
 

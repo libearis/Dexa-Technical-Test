@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { monitoringApi } from '../../api/monitoringApi';
+import { ErrorState } from '../../components/ErrorState';
 import { Modal } from '../../components/Modal';
+import { Spinner } from '../../components/Spinner';
 
 export function DepartmentsPage() {
   const [departments, setDepartments] = useState([]);
@@ -10,10 +12,20 @@ export function DepartmentsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [searchDraft, setSearchDraft] = useState('');
   const [search, setSearch] = useState('');
+  const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const { data } = await monitoringApi.get('/departments');
-    setDepartments(data);
+    setLoading(true);
+    try {
+      const { data } = await monitoringApi.get('/departments');
+      setDepartments(data);
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -81,6 +93,15 @@ export function DepartmentsPage() {
     <div>
       <h1>Departemen</h1>
 
+      {loading ? (
+        <Spinner label="Memuat data departemen..." />
+      ) : loadError ? (
+        <ErrorState
+          message="Data departemen tidak dapat dimuat. Pastikan monitoring-service berjalan."
+          onRetry={load}
+        />
+      ) : (
+      <>
       <div className="table-toolbar">
         <form className="inline-form" onSubmit={handleSearchSubmit}>
           <label>
@@ -100,6 +121,7 @@ export function DepartmentsPage() {
         </button>
       </div>
 
+      <div className="table-wrapper">
       <table>
         <thead>
           <tr>
@@ -130,6 +152,9 @@ export function DepartmentsPage() {
           )}
         </tbody>
       </table>
+      </div>
+      </>
+      )}
 
       {modalOpen && (
         <Modal title={editingId ? 'Update Departemen' : 'Tambah Departemen'} onClose={closeModal}>

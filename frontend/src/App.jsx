@@ -9,6 +9,7 @@ import { DepartmentsPage } from './pages/hrd/DepartmentsPage';
 import { EmployeesPage } from './pages/hrd/EmployeesPage';
 import { HrdDashboardPage } from './pages/hrd/HrdDashboardPage';
 import { LoginPage } from './pages/LoginPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 function HomeRedirect() {
@@ -37,7 +38,7 @@ function AppRoutes() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { monitoringApi } from '../../api/monitoringApi';
+import { ErrorState } from '../../components/ErrorState';
 import './HrdDashboardPage.css';
 
 const ID_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -28,13 +29,21 @@ function CalendarIcon() {
 export function HrdDashboardPage() {
   const [selectedDate, setSelectedDate] = useState(todayIso());
   const [summary, setSummary] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+
+  const loadSummary = () => {
+    setSummary(null);
+    setLoadError(false);
+    monitoringApi
+      .get('/attendances/dashboard/summary', { params: { date: selectedDate } })
+      .then(({ data }) => setSummary(data))
+      .catch(() => setLoadError(true));
+  };
 
   useEffect(() => {
     // oxlint-disable-next-line react/set-state-in-effect -- fetching from the API when the selected date changes
-    setSummary(null);
-    monitoringApi
-      .get('/attendances/dashboard/summary', { params: { date: selectedDate } })
-      .then(({ data }) => setSummary(data));
+    loadSummary();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
 
   return (
@@ -54,7 +63,13 @@ export function HrdDashboardPage() {
           </label>
         </div>
 
-        {!summary ? (
+        {loadError ? (
+          <ErrorState
+            compact
+            message="Ringkasan dashboard tidak dapat dimuat. Pastikan monitoring-service berjalan."
+            onRetry={loadSummary}
+          />
+        ) : !summary ? (
           <p>Memuat ringkasan...</p>
         ) : (
           <div className="card-grid">

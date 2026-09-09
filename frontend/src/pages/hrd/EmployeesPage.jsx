@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { monitoringApi } from '../../api/monitoringApi';
+import { ErrorState } from '../../components/ErrorState';
 import { Modal } from '../../components/Modal';
+import { Spinner } from '../../components/Spinner';
 
 // Backend still stores/validates EMPLOYEE/HRD_ADMIN — these are just friendlier
 // FE-only display labels, not a real roles master.
@@ -32,14 +34,24 @@ export function EmployeesPage() {
   const [searchDraft, setSearchDraft] = useState('');
   const [search, setSearch] = useState('');
   const [departmentId, setDepartmentId] = useState('');
+  const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
-    const [employeesRes, departmentsRes] = await Promise.all([
-      monitoringApi.get('/employees'),
-      monitoringApi.get('/departments'),
-    ]);
-    setEmployees(employeesRes.data);
-    setDepartments(departmentsRes.data);
+    setLoading(true);
+    try {
+      const [employeesRes, departmentsRes] = await Promise.all([
+        monitoringApi.get('/employees'),
+        monitoringApi.get('/departments'),
+      ]);
+      setEmployees(employeesRes.data);
+      setDepartments(departmentsRes.data);
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -144,6 +156,15 @@ export function EmployeesPage() {
     <div>
       <h1>Karyawan</h1>
 
+      {loading ? (
+        <Spinner label="Memuat data karyawan..." />
+      ) : loadError ? (
+        <ErrorState
+          message="Data karyawan tidak dapat dimuat. Pastikan monitoring-service berjalan."
+          onRetry={load}
+        />
+      ) : (
+      <>
       <div className="table-toolbar">
         <form className="inline-form" onSubmit={handleSearchSubmit}>
           <label>
@@ -174,6 +195,7 @@ export function EmployeesPage() {
         </button>
       </div>
 
+      <div className="table-wrapper">
       <table>
         <thead>
           <tr>
@@ -216,6 +238,9 @@ export function EmployeesPage() {
           )}
         </tbody>
       </table>
+      </div>
+      </>
+      )}
 
       {modalOpen && (
         <Modal title={editingId ? 'Update Karyawan' : 'Tambah Karyawan'} onClose={closeModal}>

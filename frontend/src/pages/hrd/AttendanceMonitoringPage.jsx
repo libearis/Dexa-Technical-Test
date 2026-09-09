@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ATTENDANCE_BASE_URL } from '../../api/attendanceApi';
 import { monitoringApi } from '../../api/monitoringApi';
+import { ErrorState } from '../../components/ErrorState';
+import { Spinner } from '../../components/Spinner';
 
 const STATUS_LABELS = { PRESENT: 'Hadir', INCOMPLETE: 'Belum Lengkap', NOT_CHECKED_IN: 'Belum Absen' };
 
@@ -24,17 +26,44 @@ export function AttendanceMonitoringPage() {
   const [search, setSearch] = useState('');
   const [records, setRecords] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadDepartments = () => {
+    monitoringApi
+      .get('/departments')
+      .then(({ data }) => setDepartments(data))
+      .catch(() => setLoadError(true));
+  };
+
+  const loadRecords = () => {
+    setLoading(true);
+    const params = Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== ''));
+    monitoringApi
+      .get('/attendances', { params })
+      .then(({ data }) => setRecords(data))
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    monitoringApi.get('/departments').then(({ data }) => setDepartments(data));
+    // oxlint-disable-next-line react/set-state-in-effect -- fetching from the API on mount, not deriving state
+    loadDepartments();
   }, []);
 
   // Date/department/status apply instantly on change; only the employee
   // name search below waits for the Cari button (or Enter).
   useEffect(() => {
-    const params = Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== ''));
-    monitoringApi.get('/attendances', { params }).then(({ data }) => setRecords(data));
+    // oxlint-disable-next-line react/set-state-in-effect -- fetching from the API when filters change, not deriving state
+    loadRecords();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
+
+  const handleRetry = () => {
+    setLoadError(false);
+    loadDepartments();
+    loadRecords();
+  };
 
   const handleFilterChange = (field) => (event) => setFilters({ ...filters, [field]: event.target.value });
 
@@ -69,6 +98,15 @@ export function AttendanceMonitoringPage() {
   return (
     <div>
       <h1>Monitoring Absensi</h1>
+      {loading ? (
+        <Spinner label="Memuat data absensi..." />
+      ) : loadError ? (
+        <ErrorState
+          message="Data monitoring tidak dapat dimuat. Pastikan monitoring-service berjalan."
+          onRetry={handleRetry}
+        />
+      ) : (
+      <>
       <form className="inline-form" onSubmit={handleSearchSubmit}>
         {filters.status === 'NOT_CHECKED_IN' ? (
           <label>
@@ -119,6 +157,7 @@ export function AttendanceMonitoringPage() {
         <button type="submit">Cari</button>
       </form>
 
+      <div className="table-wrapper">
       <table>
         <thead>
           <tr>
@@ -158,6 +197,9 @@ export function AttendanceMonitoringPage() {
           )}
         </tbody>
       </table>
+      </div>
+      </>
+      )}
 
       {selected && (
         <div className="detail-panel">

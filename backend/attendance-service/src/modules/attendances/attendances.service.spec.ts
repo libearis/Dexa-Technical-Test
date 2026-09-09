@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import * as exifr from 'exifr';
 import * as fs from 'fs';
 import { Repository } from 'typeorm';
-import { EmployeeClientService } from '../employees/employee-client.service';
+import { EmployeeLookupService } from '../employees/employee-lookup.service';
 import { AttendancesService } from './attendances.service';
 import { Attendance } from './entities/attendance.entity';
 
@@ -20,7 +20,7 @@ const mockPhoto = () =>
 describe('AttendancesService', () => {
   let service: AttendancesService;
   let attendanceRepository: jest.Mocked<Repository<Attendance>>;
-  let employeeClientService: jest.Mocked<EmployeeClientService>;
+  let employeeLookupService: jest.Mocked<EmployeeLookupService>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -40,11 +40,9 @@ describe('AttendancesService', () => {
           },
         },
         {
-          provide: EmployeeClientService,
+          provide: EmployeeLookupService,
           useValue: {
-            getActiveEmployee: jest
-              .fn()
-              .mockResolvedValue({ id: 1, status: 'ACTIVE' }),
+            findById: jest.fn().mockResolvedValue({ id: 1, status: 'ACTIVE' }),
           },
         },
         {
@@ -58,7 +56,7 @@ describe('AttendancesService', () => {
     attendanceRepository = module.get(
       getRepositoryToken(Attendance, 'attendance'),
     );
-    employeeClientService = module.get(EmployeeClientService);
+    employeeLookupService = module.get(EmployeeLookupService);
   });
 
   describe('checkIn', () => {
@@ -70,7 +68,7 @@ describe('AttendancesService', () => {
       );
     });
 
-    it('validates the employee is active via monitoring-service first', async () => {
+    it('validates the employee is active via the read-only master connection first', async () => {
       attendanceRepository.findOne.mockResolvedValue(null);
       (exifr.parse as jest.Mock).mockResolvedValue({
         DateTimeOriginal: new Date(),
@@ -78,7 +76,27 @@ describe('AttendancesService', () => {
 
       await service.checkIn(7, mockPhoto());
 
-      expect(employeeClientService.getActiveEmployee).toHaveBeenCalledWith(7);
+      expect(employeeLookupService.findById).toHaveBeenCalledWith(7);
+    });
+
+    it('rejects check-in for a deactivated employee', async () => {
+      employeeLookupService.findById.mockResolvedValue({
+        id: 1,
+        status: 'INACTIVE',
+      } as any);
+
+      await expect(service.checkIn(1, mockPhoto())).rejects.toThrow(
+        'Karyawan tidak aktif',
+      );
+      expect(attendanceRepository.findOne).not.toHaveBeenCalled();
+    });
+
+    it('rejects check-in when the employee cannot be found', async () => {
+      employeeLookupService.findById.mockResolvedValue(null);
+
+      await expect(service.checkIn(999, mockPhoto())).rejects.toThrow(
+        'Karyawan tidak aktif',
+      );
     });
 
     it('accepts a photo whose EXIF time is within tolerance', async () => {

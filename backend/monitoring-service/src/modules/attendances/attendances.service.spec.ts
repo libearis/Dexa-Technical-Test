@@ -31,7 +31,9 @@ describe('AttendancesService', () => {
     }).compile();
 
     service = module.get(AttendancesService);
-    attendanceRepository = module.get(getRepositoryToken(Attendance, 'attendance'));
+    attendanceRepository = module.get(
+      getRepositoryToken(Attendance, 'attendance'),
+    );
     employeeRepository = module.get(getRepositoryToken(Employee, 'master'));
   });
 
@@ -40,12 +42,18 @@ describe('AttendancesService', () => {
       // The "checkedIn" lookup inside findNotCheckedInRows is the only call
       // that passes `select` — use that to tell it apart from the real-rows query.
       attendanceRepository.find.mockImplementation((options: any) => {
-        if (options.select) return Promise.resolve([{ employeeId: 1 }] as Attendance[]);
-        return Promise.resolve([{ id: 5, employeeId: 1, status: 'PRESENT' }] as Attendance[]);
+        if (options.select)
+          return Promise.resolve([{ employeeId: 1 }] as Attendance[]);
+        return Promise.resolve([
+          { id: 5, employeeId: 1, status: 'PRESENT' },
+        ] as Attendance[]);
       });
       employeeRepository.find.mockResolvedValue(activeEmployees);
 
-      const result: any[] = await service.findAll({ from: '2026-03-05', to: '2026-03-05' } as any);
+      const result: any[] = await service.findAll({
+        from: '2026-03-05',
+        to: '2026-03-05',
+      } as any);
 
       expect(result).toHaveLength(2);
       expect(result.find((r) => r.employeeId === 1)?.status).toBe('PRESENT');
@@ -57,7 +65,10 @@ describe('AttendancesService', () => {
     it('does not synthesize NOT_CHECKED_IN rows for a multi-day range', async () => {
       attendanceRepository.find.mockResolvedValue([]);
 
-      const result = await service.findAll({ from: '2026-03-01', to: '2026-03-05' } as any);
+      const result = await service.findAll({
+        from: '2026-03-01',
+        to: '2026-03-05',
+      } as any);
 
       expect(result).toEqual([]);
       expect(employeeRepository.find).not.toHaveBeenCalled();
@@ -80,7 +91,8 @@ describe('AttendancesService', () => {
     it('scopes NOT_CHECKED_IN synthesis to the filtered department', async () => {
       attendanceRepository.find.mockResolvedValue([]);
       employeeRepository.find.mockImplementation(({ where }: any) => {
-        if (where.departmentId || where.id) return Promise.resolve([activeEmployees[0]]);
+        if (where.departmentId || where.id)
+          return Promise.resolve([activeEmployees[0]]);
         return Promise.resolve(activeEmployees);
       });
 

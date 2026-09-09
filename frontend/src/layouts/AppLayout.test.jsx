@@ -13,12 +13,13 @@ vi.mock('react-router-dom', async (importOriginal) => {
   return { ...actual, useNavigate: () => navigateMock };
 });
 
-function renderLayout() {
+function renderLayout(initialEntries = ['/attendance']) {
   return render(
-    <MemoryRouter initialEntries={['/attendance']}>
+    <MemoryRouter initialEntries={initialEntries}>
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/attendance" element={<div>Attendance Content</div>} />
+          <Route path="/employees" element={<div>Employees Content</div>} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -134,5 +135,67 @@ describe('AppLayout', () => {
     await user.type(screen.getByLabelText('Cari menu'), 'zzz');
 
     expect(screen.getByText('Menu tidak ditemukan')).toBeInTheDocument();
+  });
+
+  it('collapsing the Monitoring group hides its links when not on one of its pages', async () => {
+    const user = userEvent.setup();
+    useAuth.mockReturnValue({
+      user: { name: 'HRD Admin', role: 'HRD_ADMIN' },
+      logout: vi.fn(),
+    });
+    renderLayout(); // currently on /attendance, which is in the Attendance group
+
+    await user.click(screen.getByRole('button', { name: 'Monitoring' }));
+
+    expect(screen.queryByRole('link', { name: 'Dashboard' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Karyawan' })).not.toBeInTheDocument();
+    // Attendance group is unaffected by collapsing Monitoring
+    expect(screen.getByRole('link', { name: 'Absensi' })).toBeInTheDocument();
+  });
+
+  it('can collapse a group even while currently on one of its own pages', async () => {
+    const user = userEvent.setup();
+    useAuth.mockReturnValue({
+      user: { name: 'HRD Admin', role: 'HRD_ADMIN' },
+      logout: vi.fn(),
+    });
+    renderLayout(['/employees']); // /employees is in the Monitoring group
+
+    await user.click(screen.getByRole('button', { name: 'Monitoring' }));
+
+    expect(screen.queryByRole('link', { name: 'Karyawan' })).not.toBeInTheDocument();
+  });
+
+  it('keeps search results grouped under their section label', async () => {
+    const user = userEvent.setup();
+    useAuth.mockReturnValue({
+      user: { name: 'HRD Admin', role: 'HRD_ADMIN' },
+      logout: vi.fn(),
+    });
+    renderLayout();
+
+    await user.type(screen.getByLabelText('Cari menu'), 'ab');
+
+    // Both sections have a match on "ab" (Absensi/Riwayat Absensi vs Monitoring Absensi),
+    // so both section labels should still appear rather than one flat unlabeled list.
+    expect(screen.getByText('Monitoring')).toBeInTheDocument();
+    expect(screen.getByText('Attendance')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Monitoring Absensi' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Absensi' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Riwayat Absensi' })).toBeInTheDocument();
+  });
+
+  it('hides a section label entirely when none of its links match the search', async () => {
+    const user = userEvent.setup();
+    useAuth.mockReturnValue({
+      user: { name: 'HRD Admin', role: 'HRD_ADMIN' },
+      logout: vi.fn(),
+    });
+    renderLayout();
+
+    await user.type(screen.getByLabelText('Cari menu'), 'karya');
+
+    expect(screen.queryByText('Attendance')).not.toBeInTheDocument();
+    expect(screen.getByText('Monitoring')).toBeInTheDocument();
   });
 });

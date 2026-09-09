@@ -1,18 +1,65 @@
 /* Shared table/form/card styles for pages rendered inside AppLayout's content area. */
 
+.page-content .table-wrapper {
+  margin-top: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.05);
+}
+
 .page-content table {
   width: 100%;
   border-collapse: collapse;
   background: var(--color-surface);
-  margin-top: 1rem;
+}
+
+.page-content thead th {
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .page-content th,
 .page-content td {
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--color-border);
   text-align: left;
   font-size: 0.9rem;
+}
+
+.page-content tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.page-content tbody tr:hover td {
+  background: var(--color-bg);
+}
+
+.page-content .photo-link {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  background: var(--color-surface-soft);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.page-content .photo-link:hover {
+  background: var(--color-gradient);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-1px);
 }
 
 .page-content .card-grid {

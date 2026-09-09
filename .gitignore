@@ -4,3 +4,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Local DB dumps for backup/restore convenience — not committed by Claude; user uploads manually.
+/db-backup/

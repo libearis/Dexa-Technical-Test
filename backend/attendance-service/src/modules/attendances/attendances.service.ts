@@ -1,11 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as exifr from 'exifr';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Between, Repository } from 'typeorm';
-import { EmployeeClientService } from '../employees/employee-client.service';
+import { EmployeeLookupService } from '../employees/employee-lookup.service';
 import { CheckLocationDto } from './dto/check-location.dto';
 import { Attendance } from './entities/attendance.entity';
 
@@ -22,7 +26,7 @@ export class AttendancesService {
   constructor(
     @InjectRepository(Attendance, 'attendance')
     private readonly attendanceRepository: Repository<Attendance>,
-    private readonly employeeClientService: EmployeeClientService,
+    private readonly employeeLookupService: EmployeeLookupService,
     private readonly configService: ConfigService,
   ) {
     this.uploadDir = this.configService.get<string>('UPLOAD_DIR') ?? 'uploads';
@@ -39,7 +43,7 @@ export class AttendancesService {
     photo: Express.Multer.File,
     location?: CheckLocationDto,
   ) {
-    await this.employeeClientService.getActiveEmployee(employeeId);
+    await this.assertEmployeeActive(employeeId);
 
     const now = new Date();
     const attendanceDate = this.toDateOnly(now);
@@ -99,8 +103,10 @@ export class AttendancesService {
     attendance.checkOutTime = now;
     attendance.checkOutPhotoUrl = photoUrl;
     attendance.checkOutPhotoExifTime = exifTime;
-    attendance.checkOutLat = location?.lat != null ? String(location.lat) : null;
-    attendance.checkOutLng = location?.lng != null ? String(location.lng) : null;
+    attendance.checkOutLat =
+      location?.lat != null ? String(location.lat) : null;
+    attendance.checkOutLng =
+      location?.lng != null ? String(location.lng) : null;
     attendance.status = 'PRESENT';
     attendance.notes = notes ?? attendance.notes;
     attendance.updatedBy = employeeId;
@@ -136,6 +142,16 @@ export class AttendancesService {
   }
 
   // ----- private -----
+  // Read directly via the read-only "master" connection rather than calling monitoring-service's
+  // API: this is just a status check, not a decision that needs monitoring-service's business
+  // logic, so a live DB read keeps check-in working even if monitoring-service's process is down.
+  private async assertEmployeeActive(employeeId: number): Promise<void> {
+    const employee = await this.employeeLookupService.findById(employeeId);
+    if (!employee || employee.status !== 'ACTIVE') {
+      throw new ForbiddenException('Karyawan tidak aktif');
+    }
+  }
+
   private async validateExifTimestamp(
     photo: Express.Multer.File,
     serverTime: Date,
