@@ -56,7 +56,7 @@ against `master_db.employees`; the JWT it issues is accepted by both services be
 share `JWT_SECRET`. The frontend routes `EMPLOYEE` accounts to `/employee` (check-in/out +
 history) and `HRD_ADMIN` accounts to `/hrd` (dashboard, monitoring, employees, departments).
 
-## Notes / known limitations (see AGENTS.md §3.2, §8)
+## Notes / known limitations
 
 - EXIF-based photo validation can be defeated by a user who strips/edits metadata with
   dedicated tools — accepted trade-off for this scope, not a gap that was missed.

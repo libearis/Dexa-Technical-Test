@@ -26,6 +26,7 @@ export function AttendanceMonitoringPage() {
   const [search, setSearch] = useState('');
   const [records, setRecords] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [photoErrors, setPhotoErrors] = useState({});
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +89,10 @@ export function AttendanceMonitoringPage() {
   const openDetail = async (id) => {
     const { data } = await monitoringApi.get(`/attendances/${id}`);
     setSelected(data);
+    setPhotoErrors({});
   };
+
+  const handlePhotoError = (key) => () => setPhotoErrors((current) => ({ ...current, [key]: true }));
 
   const filteredRecords = records.filter((record) => {
     const term = search.trim().toLowerCase();
@@ -217,13 +221,17 @@ export function AttendanceMonitoringPage() {
                   ? new Date(selected.checkInPhotoExifTime).toLocaleString()
                   : 'tidak terbaca'}
               </p>
-              {selected.checkInPhotoUrl && (
-                <img
-                  src={`${ATTENDANCE_BASE_URL}${selected.checkInPhotoUrl}`}
-                  alt="check-in"
-                  className="detail-photo"
-                />
-              )}
+              {selected.checkInPhotoUrl &&
+                (photoErrors.checkIn ? (
+                  <p className="detail-photo-missing">Foto tidak tersedia</p>
+                ) : (
+                  <img
+                    src={`${ATTENDANCE_BASE_URL}${selected.checkInPhotoUrl}`}
+                    alt="check-in"
+                    className="detail-photo"
+                    onError={handlePhotoError('checkIn')}
+                  />
+                ))}
               {selected.checkInLat && selected.checkInLng && (
                 <p>
                   Lokasi:{' '}
@@ -249,13 +257,17 @@ export function AttendanceMonitoringPage() {
                   ? new Date(selected.checkOutPhotoExifTime).toLocaleString()
                   : '-'}
               </p>
-              {selected.checkOutPhotoUrl && (
-                <img
-                  src={`${ATTENDANCE_BASE_URL}${selected.checkOutPhotoUrl}`}
-                  alt="check-out"
-                  className="detail-photo"
-                />
-              )}
+              {selected.checkOutPhotoUrl &&
+                (photoErrors.checkOut ? (
+                  <p className="detail-photo-missing">Foto tidak tersedia</p>
+                ) : (
+                  <img
+                    src={`${ATTENDANCE_BASE_URL}${selected.checkOutPhotoUrl}`}
+                    alt="check-out"
+                    className="detail-photo"
+                    onError={handlePhotoError('checkOut')}
+                  />
+                ))}
               {selected.checkOutLat && selected.checkOutLng && (
                 <p>
                   Lokasi:{' '}

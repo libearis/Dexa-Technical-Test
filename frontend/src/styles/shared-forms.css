@@ -218,3 +218,16 @@
   border-radius: 4px;
   margin-top: 0.5rem;
 }
+
+.page-content .detail-photo-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+  margin-top: 0.5rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}

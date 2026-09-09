@@ -168,7 +168,7 @@ export class AttendancesService {
       return {
         exifTime: null,
         notes:
-          'Metadata EXIF tidak ditemukan pada foto, silakan foto ulang menggunakan kamera langsung',
+          'Foto tidak memiliki metadata EXIF — disarankan untuk ditinjau lebih lanjut oleh HRD',
       };
     }
 

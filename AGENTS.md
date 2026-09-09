@@ -39,24 +39,10 @@ monitoring-service
 
 ### 2.2 Kredensial Database
 
-```
-Host: localhost
-Port: 3306
-Username: root
-Password: Zerolair2001
-Databases: master_db, attendance_db
-```
-
-Simpan di `.env` masing-masing service (jangan hardcode), contoh key:
-
-```
-DB_HOST=localhost
-DB_PORT=3306
-DB_USERNAME=root
-DB_PASSWORD=Zerolair2001
-DB_MASTER_NAME=master_db
-DB_ATTENDANCE_NAME=attendance_db
-```
+Kredensial **tidak pernah** ditulis di file manapun yang masuk ke git (termasuk dokumen ini) —
+selalu baca dari `.env` masing-masing service, bukan hardcode. Lihat `.env.example` di tiap
+service (`attendance-service`, `monitoring-service`) untuk daftar key yang dibutuhkan:
+`DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_MASTER_NAME`, `DB_ATTENDANCE_NAME`.
 
 ### 2.3 Skema Tabel
 
@@ -199,7 +185,6 @@ sebelum izinkan check-in (`attendance-service` baca langsung `master_db.employee
 | Auth               | JWT (`@nestjs/jwt` + `@nestjs/passport`)                         |
 | File upload        | `multer` (local disk atau adjust ke S3-compatible bila tersedia) |
 | EXIF parsing       | `exifr`                                                          |
-| Inter-service HTTP | `@nestjs/axios`                                                  |
 | Frontend           | React.js + React Router                                          |
 | HTTP client FE     | `axios` (2 instance: `attendanceApi`, `monitoringApi`)           |
 
@@ -268,5 +253,5 @@ export class AttendanceService {
 
 - Message broker / event-driven communication (dianggap overkill untuk skala 2 service ini).
 - OCR watermark visual pada foto (EXIF-based sudah cukup untuk kasus ini, lihat 3.2).
-- Edit/hapus data attendance oleh HRD Admin (soal eksplisit "view only").
+- Edit/hapus data attendance oleh HRD Admin (View Only)
 - 2 frontend terpisah (microservice concept hanya di sisi backend).

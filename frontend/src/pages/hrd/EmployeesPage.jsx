@@ -34,6 +34,7 @@ export function EmployeesPage() {
   const [searchDraft, setSearchDraft] = useState('');
   const [search, setSearch] = useState('');
   const [departmentId, setDepartmentId] = useState('');
+  const [deactivateTarget, setDeactivateTarget] = useState(null);
   const [loadError, setLoadError] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -121,8 +122,10 @@ export function EmployeesPage() {
     setModalOpen(true);
   };
 
-  const handleDeactivate = async (id) => {
-    await monitoringApi.patch(`/employees/${id}/deactivate`);
+  const confirmDeactivate = async () => {
+    if (!deactivateTarget) return;
+    await monitoringApi.patch(`/employees/${deactivateTarget.id}/deactivate`);
+    setDeactivateTarget(null);
     await load();
   };
 
@@ -222,7 +225,7 @@ export function EmployeesPage() {
                   Edit
                 </button>{' '}
                 {employee.status === 'ACTIVE' && (
-                  <button className="secondary" onClick={() => handleDeactivate(employee.id)}>
+                  <button className="secondary" onClick={() => setDeactivateTarget(employee)}>
                     Nonaktifkan
                   </button>
                 )}
@@ -303,6 +306,23 @@ export function EmployeesPage() {
               </button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {deactivateTarget && (
+        <Modal title="Nonaktifkan Karyawan" onClose={() => setDeactivateTarget(null)}>
+          <p>
+            Apakah Anda yakin ingin menonaktifkan <strong>{deactivateTarget.name}</strong>? Karyawan
+            yang nonaktif tidak akan bisa login lagi.
+          </p>
+          <div className="modal-actions">
+            <button type="button" className="secondary" onClick={() => setDeactivateTarget(null)}>
+              Batal
+            </button>
+            <button type="button" onClick={confirmDeactivate}>
+              Nonaktifkan
+            </button>
+          </div>
         </Modal>
       )}
     </div>
